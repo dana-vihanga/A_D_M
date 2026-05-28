@@ -156,3 +156,276 @@ print_min:
     li $v0, 10
     syscall
 
+2019
+
+Q1.
+# Filename: Q1_util.asm
+
+.text
+# a) Subprogram to exit from an assembly program
+exit:
+    li $v0, 10
+    syscall
+
+# b) Subprogram to print a String (Address should be passed in $a0)
+print_string:
+    li $v0, 4
+    syscall
+    jr $ra
+
+# c) Subprogram to prompt/read an Integer (Returns result in $v0)
+prompt_int:
+    li $v0, 5
+    syscall
+    jr $ra
+
+# d) Subprogram to print an Integer (Value should be passed in $a0)
+print_int:
+    li $v0, 1
+    syscall
+    jr $ra
+
+# e) Subprogram to print a Tab character
+print_tab:
+    li $v0, 11
+    li $a0, 9        # ASCII code for Tab is 9
+    syscall
+    jr $ra
+
+Q2.
+
+.data
+str_miles:   .asciiz "Enter the number of miles driven: "
+str_gallons: .asciiz "Enter the number of gallons used: "
+str_output:  .asciiz "Your mpg = "
+
+.text
+.globl main
+
+main:
+    # 1. int miles = prompt("Enter the number of miles driven: ");
+    li $v0, 4
+    la $a0, str_miles
+    syscall
+    li $v0, 5
+    syscall
+    move $t0, $v0        # $t0 = miles
+
+    # 2. int gallons = prompt("Enter the number of gallons used: ");
+    li $v0, 4
+    la $a0, str_gallons
+    syscall
+    li $v0, 5
+    syscall
+    move $t1, $v0        # $t1 = gallons
+
+    # 3. int mpg = miles / gallons;
+    div $t2, $t0, $t1    # $t2 = mpg ($t0 / $t1)
+
+    # 4. output("Your mpg = " + mpg);
+    li $v0, 4
+    la $a0, str_output
+    syscall
+    
+    move $a0, $t2        # Print the calculated mpg value
+    li $v0, 1
+    syscall
+
+    # Exit Program
+    li $v0, 10
+    syscall
+
+Q3.
+
+.data
+prompt_msg: .asciiz "Enter a positive integer: "
+even_msg:   .asciiz "The number is Even\n"
+odd_msg:    .asciiz "The number is Odd\n"
+
+# Q1_util.asm හි ඇති උපක්‍රම මෙතනට සම්බන්ධ කිරීම
+.include "Q1_util.asm"
+
+.text
+.globl main
+
+main:
+    # 1. Prompt the user for an integer
+    la $a0, prompt_msg
+    jal print_string      # Q1(b) පාවිච්චි කිරීම
+    
+    # 2. Get integer from user
+    jal prompt_int        # Q1(c) පාවිච්චි කිරීම
+    move $t0, $v0         # $t0 = user input
+    
+    # 3. Check if even or odd (Divide by 2 and check remainder)
+    li $t1, 2
+    rem $t2, $t0, $t1     # $t2 = $t0 % 2
+    
+    # ඉතිරිය 0 නම් number එක Even, නැත්නම් Odd
+    beq $t2, $zero, show_even
+    
+    # If odd:
+    la $a0, odd_msg
+    jal print_string
+    j end_program
+
+show_even:
+    la $a0, even_msg
+    jal print_string
+
+end_program:
+    # 4. Exit
+    j exit                # Q1(a) වෙත යාම
+
+Q4.
+
+.data
+prompt_num1: .asciiz "Enter Number 1: "
+prompt_num2: .asciiz "Enter Number 2: "
+
+menu_title:  .asciiz "\nMenu\n"
+menu_add:    .asciiz "1 - Addition\n"
+menu_sub:    .asciiz "2 - Subtraction\n"
+menu_mul:    .asciiz "3 - Multiplication\n"
+menu_div:    .asciiz "4 - Division (Quotient)\n"
+menu_mod:    .asciiz "5 - Modulus (Remainder)\n"
+prompt_op:   .asciiz "Select the operation from the Menu: "
+
+sign_add:    .asciiz " + "
+sign_sub:    .asciiz " - "
+sign_mul:    .asciiz " x "
+sign_div:    .asciiz " / "
+sign_mod:    .asciiz " % "
+sign_equal:  .asciiz " = "
+
+div_zero_err: .asciiz "Error: Division by zero is not allowed.\n"
+invalid_err:  .asciiz "Error: Invalid Menu Selection.\n"
+
+.text
+.globl main
+
+main:
+    # 1. Enter Number 1
+    li $v0, 4
+    la $a0, prompt_num1
+    syscall
+    li $v0, 5
+    syscall
+    move $t0, $v0        # $t0 = Number 1
+
+    # 2. Enter Number 2
+    li $v0, 4
+    la $a0, prompt_num2
+    syscall
+    li $v0, 5
+    syscall
+    move $t1, $v0        # $t1 = Number 2
+
+    # 3. Display Menu
+    li $v0, 4
+    la $a0, menu_title
+    syscall
+    la $a0, menu_add
+    syscall
+    la $a0, menu_sub
+    syscall
+    la $a0, menu_mul
+    syscall
+    la $a0, menu_div
+    syscall
+    la $a0, menu_mod
+    syscall
+
+    # 4. Prompt for operation selection
+    la $a0, prompt_op
+    syscall
+    li $v0, 5
+    syscall
+    move $t2, $v0        # $t2 = Choice (1, 2, 3, 4, 5)
+
+    # 5. Jump based on Menu Selection
+    li $t3, 1
+    beq $t2, $t3, do_add
+    li $t3, 2
+    beq $t2, $t3, do_sub
+    li $t3, 3
+    beq $t2, $t3, do_mul
+    li $t3, 4
+    beq $t2, $t3, do_div
+    li $t3, 5
+    beq $t2, $t3, do_mod
+
+    # If none of the above, show invalid choice error
+    li $v0, 4
+    la $a0, invalid_err
+    syscall
+    j exit_program
+
+do_add:
+    add $t4, $t0, $t1    # $t4 = result
+    la $s0, sign_add     # Store operator sign address in $s0
+    j print_result
+
+do_sub:
+    sub $t4, $t0, $t1
+    la $s0, sign_sub
+    j print_result
+
+do_mul:
+    mul $t4, $t0, $t1
+    la $s0, sign_mul
+    j print_result
+
+do_div:
+    # Check for division by zero
+    beq $t1, $zero, error_div_zero
+    div $t4, $t0, $t1
+    la $s0, sign_div
+    j print_result
+
+do_mod:
+    # Check for modulus by zero
+    beq $t1, $zero, error_div_zero
+    rem $t4, $t0, $t1
+    la $s0, sign_mod
+    j print_result
+
+error_div_zero:
+    li $v0, 4
+    la $a0, div_zero_err
+    syscall
+    j exit_program
+
+print_result:
+    # Output Format: [Num1] [Operator] [Num2] = [Result]
+    
+    # Print Num1
+    li $v0, 1
+    move $a0, $t0
+    syscall
+
+    # Print Operator Sign
+    li $v0, 4
+    move $a0, $s0
+    syscall
+
+    # Print Num2
+    li $v0, 1
+    move $a0, $t1
+    syscall
+
+    # Print "=" Sign
+    li $v0, 4
+    la $a0, sign_equal
+    syscall
+
+    # Print Result
+    li $v0, 1
+    move $a0, $t4
+    syscall
+
+exit_program:
+    # Exit system call
+    li $v0, 10
+    syscall
+
