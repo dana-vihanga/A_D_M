@@ -1,0 +1,158 @@
+2020
+
+Q1.
+
+# Q1_util.asm
+
+.text
+# (a) Exit program
+exit:
+    li $v0, 10
+    syscall
+
+# (b) Print a String (Address should be in $a0)
+print_string:
+    li $v0, 4
+    syscall
+    jr $ra
+
+# (c) Prompt an Integer (Returns result in $v0)
+prompt_int:
+    li $v0, 5
+    syscall
+    jr $ra
+
+# (d) Print an Integer (Value should be in $a0)
+print_int:
+    li $v0, 1
+    syscall
+    jr $ra
+
+# (e) Print a Tab
+print_tab:
+    li $v0, 11
+    li $a0, 9    # ASCII value for Tab is 9
+    syscall
+    jr $ra
+
+
+Q2.
+
+.data
+prompt: .asciiz "Enter a positive integer: "
+even_msg: .asciiz "The number is Even"
+odd_msg: .asciiz "The number is Odd"
+
+.text
+main:
+    # Prompt user
+    la $a0, prompt
+    jal print_string
+    
+    # Get integer
+    jal prompt_int
+    move $t0, $v0
+    
+    # Check even/odd (Remainder of division by 2)
+    li $t1, 2
+    rem $t2, $t0, $t1
+    
+    beq $t2, $zero, is_even
+    
+    # If not zero, it's odd
+    la $a0, odd_msg
+    jal print_string
+    j end_q2
+
+is_even:
+    la $a0, even_msg
+    jal print_string
+
+end_q2:
+    jal exit
+
+
+Q3.
+
+.data
+num_prompt: .asciiz "Enter number for factorial: "
+res_msg: .asciiz "Factorial result: "
+
+.text
+main:
+    li $v0, 4
+    la $a0, num_prompt
+    syscall
+    
+    li $v0, 5
+    syscall
+    move $t0, $v0      # $t0 = input number (e.g., 5)
+    
+    li $t1, 1          # $t1 = result (starts from 1)
+
+fact_loop:
+    ble $t0, 1, print_res
+    mul $t1, $t1, $t0  # result = result * n
+    sub $t0, $t0, 1    # n = n - 1
+    j fact_loop
+
+print_res:
+    li $v0, 4
+    la $a0, res_msg
+    syscall
+    
+    move $a0, $t1
+    li $v0, 1
+    syscall
+    
+    li $v0, 10
+    syscall
+
+
+Q4.
+
+.data
+.align 2
+arry: .word 100, 10, 3, -2, 110, 0, -50, 150, -17, 8
+size: .word 10
+msg: .asciiz "Smallest number: "
+
+.text
+main:
+    la $t0, arry       # Array base address
+    lw $t1, size       # Load size (10)
+    lw $t2, 0($t0)     # $t2 = smallest (Initialize with first element)
+    
+    li $t3, 1          # Counter i = 1
+
+loop:
+    beq $t3, $t1, print_min
+    
+    # Next element ලිපිනය ගණනය කිරීම (i * 4)
+    mul $t4, $t3, 4
+    add $t4, $t0, $t4
+    lw $t5, 0($t4)     # $t5 = current element
+    
+    # If current < smallest, update smallest
+    blt $t5, $t2, update_min
+    
+    addi $t3, $t3, 1
+    j loop
+
+update_min:
+    move $t2, $t5      # Update smallest
+    addi $t3, $t3, 1
+    j loop
+
+print_min:
+    li $v0, 4
+    la $a0, msg
+    syscall
+    
+    move $a0, $t2
+    li $v0, 1
+    syscall
+    
+    li $v0, 10
+    syscall
+
