@@ -429,3 +429,234 @@ exit_program:
     li $v0, 10
     syscall
 
+2018
+
+Q1.
+
+.data
+prompt1: .asciiz "Enter single-digit Number 1: "
+prompt2: .asciiz "Enter single-digit Number 2: "
+msg_add: .asciiz "\nSummation: "
+msg_sub: .asciiz "\nSubtraction: "
+msg_mul: .asciiz "\nMultiplication: "
+msg_div: .asciiz "\nDivision: "
+msg_err: .asciiz "\nDivision: Error (Cannot divide by zero)"
+
+.text
+.globl main
+main:
+    # 1. Number 1 ලබා ගැනීම
+    li $v0, 4
+    la $a0, prompt1
+    syscall
+    li $v0, 5
+    syscall
+    move $t0, $v0        # $t0 = Num1
+
+    # 2. Number 2 ලබා ගැනීම
+    li $v0, 4
+    la $a0, prompt2
+    syscall
+    li $v0, 5
+    syscall
+    move $t1, $v0        # $t1 = Num2
+
+    # ---- Summation ----
+    li $v0, 4
+    la $a0, msg_add
+    syscall
+    add $a0, $t0, $t1
+    li $v0, 1
+    syscall
+
+    # ---- Subtraction ----
+    li $v0, 4
+    la $a0, msg_sub
+    syscall
+    sub $a0, $t0, $t1
+    li $v0, 1
+    syscall
+
+    # ---- Multiplication ----
+    li $v0, 4
+    la $a0, msg_mul
+    syscall
+    mul $a0, $t0, $t1
+    li $v0, 1
+    syscall
+
+    # ---- Division ----
+    beq $t1, $zero, div_error # 0න් බෙදන්න බැරි නිසා Check කරනවා
+    li $v0, 4
+    la $a0, msg_div
+    syscall
+    div $a0, $t0, $t1
+    li $v0, 1
+    syscall
+    j exit
+
+div_error:
+    li $v0, 4
+    la $a0, msg_err
+    syscall
+
+exit:
+    li $v0, 10
+    syscall
+
+Q2.
+
+.data
+newline: .asciiz "\n"
+
+.text
+.globl main
+main:
+    li $t0, 9            # Loop එක පටන් ගන්නේ 9න්
+
+loop_q2:
+    blt $t0, 1, end_q2   # $t0 එක 1ට වඩා අඩු වුණොත් ලූපයෙන් අයින් වෙනවා
+    
+    # ඉලක්කම ප්‍රින්ට් කිරීම
+    move $a0, $t0
+    li $v0, 1
+    syscall
+    
+    # නව පේළියක් (Newline) ප්‍රින්ට් කිරීම
+    li $v0, 4
+    la $a0, newline
+    syscall
+    
+    # $t0 එක 1කින් අඩු කිරීම
+    sub $t0, $t0, 1
+    j loop_q2
+
+end_q2:
+    li $v0, 10
+    syscall
+
+Q3.
+
+.data
+p1:  .asciiz "Enter a number: "
+p2:  .asciiz "Enter a second number: "
+p3:  .asciiz "Enter a third number: "
+res: .asciiz "Smallest of three numbers is: "
+
+.text
+.globl main
+main:
+    # පළමු අංකය
+    li $v0, 4
+    la $a0, p1
+    syscall
+    li $v0, 5
+    syscall
+    move $t0, $v0
+
+    # දෙවැනි අංකය
+    li $v0, 4
+    la $a0, p2
+    syscall
+    li $v0, 5
+    syscall
+    move $t1, $v0
+
+    # තුන්වැනි අංකය
+    li $v0, 4
+    la $a0, p3
+    syscall
+    li $v0, 5
+    syscall
+    move $t2, $v0
+
+    # ලොජික් එක: මුලින්ම $t0 කුඩාමයි කියා හිතමු ($t3 = smallest)
+    move $t3, $t0
+
+    # $t1 එක $t3 ට වඩා කුඩාද බලන්න
+    blt $t1, $t3, update_t1
+    j check_t2
+
+update_t1:
+    move $t3, $t1        # කුඩාම අංකය $t1 කරන්න
+
+check_t2:
+    # $t2 එක $t3 ට වඩා කුඩාද බලන්න
+    blt $t2, $t3, update_t2
+    j print_smallest
+
+update_t2:
+    move $t3, $t2        # කුඩාම අංකය $t2 කරන්න
+
+print_smallest:
+    li $v0, 4
+    la $a0, res
+    syscall
+    
+    move $a0, $t3
+    li $v0, 1
+    syscall
+
+    li $v0, 10
+    syscall
+
+Q4.
+
+.data
+prompt_n: .asciiz "Enter n: "
+result_n: .asciiz "Factorial is: "
+
+.text
+.globl main
+main:
+    # Input 'n' from keyboard
+    li $v0, 4
+    la $a0, prompt_n
+    syscall
+    li $v0, 5
+    syscall
+    move $a0, $v0        # $a0 ඇතුළට 'n' අගය දානවා (Argument එක විදිහට)
+
+    jal factorial        # Factorial function එක call කිරීම
+    move $t0, $v0        # පිළිතුර $t0 වෙත තබා ගැනීම
+
+    # පිළිතුර ප්‍රින්ට් කිරීම
+    li $v0, 4
+    la $a0, result_n
+    syscall
+    
+    move $a0, $t0
+    li $v0, 1
+    syscall
+
+    # Exit
+    li $v0, 10
+    syscall
+
+# ---- Recursive Factorial Function ----
+factorial:
+    subu $sp, $sp, 8     # Stack එකේ ඉඩ වෙන් කිරීම
+    sw $ra, 4($sp)       # Return Address එක සේව් කිරීම
+    sw $a0, 0($sp)       # වත්මන් 'n' අගය සේව් කිරීම
+
+    # Base Case: n <= 0 නම් 1ක් රිටන් කරන්න
+    blez $a0, base_case
+
+    # Recursive Step: fact(n-1)
+    sub $a0, $a0, 1
+    jal factorial
+    
+    # කෝඩ් එක ආපසු හැරෙන විට (Unwinding stack)
+    lw $a0, 0($sp)       # පරණ 'n' අගය නැවත ලෝඩ් කිරීම
+    lw $ra, 4($sp)       # Return Address එක නැවත ලෝඩ් කිරීම
+    addi $sp, $sp, 8     # Stack එක යථා තත්ත්වයට පත් කිරීම
+
+    mul $v0, $a0, $v0    # n * fact(n-1)
+    jr $ra
+
+base_case:
+    li $v0, 1            # 0! හෝ 1! වලට පිළිතුර 1යි
+    lw $ra, 4($sp)
+    addi $sp, $sp, 8
+    jr $ra
+
