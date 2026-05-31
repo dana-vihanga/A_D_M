@@ -696,116 +696,410 @@ while loop
 3-cat
 
 .data
-array:      .word 55,27,13,5,44,32,17,36
-size:       .word 8
-msg1:       .asciiz "integers in the array: "
-msg2:       .asciiz "\nmaximum value: "
-msg3:       .asciiz "\nsummation: "
-space:      .asciiz " "
+    array:      .word 12, 13, 14, 56, 78, 34
+    size:       .word 6
+
+    msg_arr:    .asciiz "Array: "
+    msg_space:  .asciiz " "
+    msg_max:    .asciiz "\nMaximum: "
+    msg_avg:    .asciiz "\nAverage: "
+
+.text
+.globl main
+main:
+    la $t0, array          
+    lw $t1, size           
+    
+    li $t2, 0              
+    lw $t3, 0($t0)         
+    li $t4, 0              
+    
+   
+    li $v0, 4
+    la $a0, msg_arr
+    syscall
+
+loop:
+    beq $t2, $t1, print_results 
+    
+    lw $t5, 0($t0)         
+
+    li $v0, 1
+    move $a0, $t5
+    syscall
+    
+    li $v0, 4
+    la $a0, msg_space
+    syscall
+
+    add $t4, $t4, $t5      
+
+    blt $t3, $t5, skip_max 
+    move $t3, $t5          
+skip_max:
+
+   
+    addi $t0, $t0, 4       
+    addi $t2, $t2, 1      
+    j loop
+
+
+print_results:
+    li $v0, 4
+    la $a0, msg_max
+    syscall
+    
+    li $v0, 1
+    move $a0, $t3          
+    syscall
+
+    div $t4, $t1           
+    mflo $t6              
+    
+    li $v0, 4
+    la $a0, msg_avg
+    syscall
+    
+    li $v0, 1
+    move $a0, $t6         
+    syscall
+
+    li $v0, 10
+    syscall
+
+2 - cat
+
+.text
+
+exit:
+	li $v0, 10
+	syscall
+	jr $ra
+	
+#print string
+printString:
+	li $v0, 4
+	syscall
+	jr $ra	
+	
+ReadInt:
+	li $v0,5
+	syscall
+	jr $ra
+	
+printInteger:
+	li $v0, 1
+	syscall
+	jr $ra	
+	
+ExatractDigit:
+	li $t0, 10
+	div $a0, $t0
+	mfhi $v0
+	jr $ra
+--
+
+.data
+msg1: .asciiz "Enter an integer: "
+palMsg: .asciiz "This is Palindrom Number."
+notMsg: .asciiz "This is not Palindrom Number."
 
 .text
 .globl main
 
 main:
-    li $v0,4
+	#Promt user
+	li $v0, 4
+	la $a0, msg1
+	syscall
+	
+	#read Integer
+	li $v0, 5
+	syscall
+	move $t0,$v0 #oiginal number
+	move $t1, $v0  #working copy
+	
+	#reverse = 0
+	li $t2, 0
+	
+	loop:
+		# if number == 0 stop
+		beq $t1, $zero, check
+		
+		#digit = number % 10
+		li $t3, 10
+		div $t1, $t3 
+		mfhi $t4 # remainder (digit)
+		
+		#number = number /10
+		mflo $t5
+		
+		#reverse = reverse * 10 + digit
+		mul $t2, $t2, $t3
+		add $t2, $t2, $t4
+	
+		j loop
+		
+	check:
+		#compare original and reverse
+		beq $t0, $t2, palindrome
+		#not plindrome
+		li $v0, 4
+		la $a0, notMsg
+		syscall
+		j exit
+		
+	palindrome:
+		li $v0, 4
+		la $a0, palMsg
+		syscall
+		
+exit:
+	li $v0, 10
+	syscall
+---
 
-    la $a0,msg1
+.data
+msg1: .asciiz "Enter a 3-digit number: "
+msg2: .asciiz "It is an Armstrong number.\n"
+msg3: .asciiz "It is NOT an Armstrong number.\n"
 
-    syscall
+.text
+.globl main
 
-    la $a0,array
+main:
 
-    lw $a1,size
+# Print prompt
+li $v0, 4
+la $a0, msg1
+syscall
 
-    jal printArray
-    li $v0,4
+# Read integer
+li $v0, 5
+syscall
+move $t0, $v0        # $t0 = original number
 
-    la $a0,msg2
+move $t1, $t0        # copy for processing
+li $t2, 0            # sum = 0
 
-    syscall
+loop:
+beq $t1, $zero, check   # if number == 0 → finish
 
-    la $a0,array
+# digit = number % 10
+li $t3, 10
+div $t1, $t3
+mfhi $t4              # digit
+mflo $t1              # number = number / 10
 
-    lw $a1,size
+# digit^3
+mul $t5, $t4, $t4
+mul $t5, $t5, $t4
 
-    jal findMax
-    move $a0,$v0
+# sum += digit^3
+add $t2, $t2, $t5
 
-    li $v0,1
+j loop
 
-    syscall
-    li $v0,4
+check:
+# compare sum with original number
+beq $t2, $t0, yes
 
-    la $a0,msg3
+# NOT Armstrong
+li $v0, 4
+la $a0, msg3
+syscall
+j exit
 
-    syscall
-    la $a0,array
+yes:
+li $v0, 4
+la $a0, msg2
+syscall
 
-    lw $a1,size
+exit:
+li $v0, 10
+syscall
 
-    jal findSum
-    move $a0,$v0
+1-cat
 
-    li $v0,1
+.data
+msg1: .asciiz "Enter temperature in Celsius: "
+msg2: .asciiz "Temperature in Fahrenheit: "
 
-    syscall
-    li $v0,10
-    syscall
-printArray:
-    move $t3,$a0  
-    li $t0,0  
-printLoop:
+.text
+.globl main
 
-    beq $t0,$a1,endPrint
-    lw $t1,0($t3)
-    li $v0,1
-    move $a0,$t1
-    syscall
-    li $v0,4
-    la $a0,space
-    syscal
-    addi $t3,$t3,4 
-    addi $t0,$t0,1
-    j printLoop
+main:
 
-endPrint:
-    jr $ra
+# Ask for Celsius
+li $v0, 4
+la $a0, msg1
+syscall
 
-findMax:
+# Read integer
+li $v0, 5
+syscall
+move $t0, $v0     # C stored in $t0
 
-    lw $t0,0($a0)
-    li $t1,1
+# C * 9
+li $t1, 9
+mul $t2, $t0, $t1
 
-maxLoop:
+# (C*9)/5
+li $t1, 5
+div $t2, $t1
+mflo $t3
 
-    beq $t1,$a1,endMax
-    addi $a0,$a0,4
-    lw $t2,0($a0)
+# +32
+addi $t3, $t3, 32
 
-    ble $t2,$t0,skipMax
-    move $t0,$t2
+# Print message
+li $v0, 4
+la $a0, msg2
+syscall
 
-skipMax:
-    addi $t1,$t1,1
-    j maxLoop
-endMax:
-    move $v0,$t0
-    jr $ra
+# Print Fahrenheit
+li $v0, 1
+move $a0, $t3
+syscall
 
-findSum:
-    li $t0,0
-    li $t1,0 
-sumLoop:
+# Exit
+li $v0, 10
+syscall
 
-    beq $t1,$a1,endSum
-    lw $t2,0($a0)
-    add $t0,$t0,$t2
+--
 
-    addi $a0,$a0,4
-    addz $t1,$t1,1
-    j sumLoop
-endSum:
+.data
+msg1: .asciiz "Enter radius: "
+msg2: .asciiz "Area of circle: "
 
-    move $v0,$t0
-    jr $ra
+.text
+.globl main
 
+main:
+	li $v0, 4
+	la $a0, msg1
+	syscall
+	
+	li $v0, 5
+	syscall
+	move $t0, $v0
+	
+	li $t1, 22
+	li $t2, 7
+	
+	div $t1, $t2
+	mflo $t3
+
+	#(22/7)* r
+	mul $t1, $t3, $t0
+	
+	#(22/7)* r^2
+	mul $t2, $t1, $t0
+	
+	#print message
+	li $v0, 4
+	la $a0, msg2
+	syscall
+	
+	li $v0, 1
+	move $a0, $t2
+	syscall
+	
+	li $v0, 10
+	syscall
+
+--
+
+.data
+msg1: .asciiz "Enter X value: "
+msg2: .asciiz "Result: "
+
+.text
+.globl main
+
+main:
+	li $v0, 4
+	la $a0, msg1
+	syscall
+	
+	li $v0, 5
+	syscall
+	move $t0, $v0
+	
+	
+	# X^2
+	mul $t1, $t0, $t0
+	
+	li $t2, 3
+	
+	# 3X^2
+	mul $t3, $t2, $t1
+	
+	#5X
+	li $t4, 5
+	mul $t5, $t4, $t0
+	
+	# 3X^2 + 5X
+	add $t6, $t3, $t5
+	
+	subi $t7, $t6, 7
+	
+	li $v0, 4
+	la $a0, msg2
+	syscall
+	
+	li $v0, 1
+	move $a0, $t7
+	syscall
+	
+	li $v0, 10
+	syscall
+	
+	--
+
+.data
+msg1: .asciiz "Enter X value: "
+msg2: .asciiz "Result: "
+
+.text
+.globl main
+
+main:
+	li $v0, 4
+	la $a0, msg1
+	syscall
+	
+	li $v0, 5
+	syscall
+	move $t0, $v0
+	
+	
+	# X^2
+	mul $t1, $t0, $t0
+	
+	li $t2, 3
+	
+	# 3X^2
+	mul $t3, $t2, $t1
+	
+	#5X
+	li $t4, 5
+	mul $t5, $t4, $t0
+	
+	# 3X^2 + 5X
+	add $t6, $t3, $t5
+	
+	subi $t7, $t6, 7
+	
+	li $v0, 4
+	la $a0, msg2
+	syscall
+	
+	li $v0, 1
+	move $a0, $t7
+	syscall
+	
+	li $v0, 10
+	syscall
+	
+	
