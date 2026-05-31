@@ -2,74 +2,86 @@
 
 Q1.
 
-# Q1_util.asm
-
 .text
-# (a) Exit program
+
+.globl exit
+.globl print_string
+.globl prompt_int
+.globl print_int
+.globl print_tab
+
+# a) Write a subprogram to exit from an assembly program
 exit:
-    li $v0, 10
-    syscall
+    li $v0, 10          # Load syscall code for exit (10)
+    syscall             # Terminate program
 
-# (b) Print a String (Address should be in $a0)
+# b) Write a subprogram to print a String
 print_string:
-    li $v0, 4
-    syscall
-    jr $ra
+    li $v0, 4           # Load syscall code for printing string (4)
+    syscall             # Print string at address $a0
+    jr $ra              # Return to caller
 
-# (c) Prompt an Integer (Returns result in $v0)
+# c) Write a subprogram to prompt an Integer
 prompt_int:
-    li $v0, 5
+    li $v0, 4           # Print the prompt message (Address must be in $a0)
     syscall
-    jr $ra
+    li $v0, 5           # Read integer from keyboard
+    syscall             # The entered integer is returned in $v0
+    jr $ra              # Return to caller
 
-# (d) Print an Integer (Value should be in $a0)
+# d) Write a subprogram to print an Integer
 print_int:
-    li $v0, 1
-    syscall
-    jr $ra
+    li $v0, 1           # Load syscall code for printing integer (1)
+    syscall             # Print integer value stored in $a0
+    jr $ra              # Return to caller
 
-# (e) Print a Tab
+# e) Write a subprogram to print a Tab
 print_tab:
-    li $v0, 11
-    li $a0, 9    # ASCII value for Tab is 9
-    syscall
-    jr $ra
+    li $v0, 11          # Load syscall code for printing a single character (11)
+    li $a0, 9           # ASCII value for Horizontal Tab is 9
+    syscall             # Print the tab
+    jr $ra              # Return to caller
 
 
-Q2.
+ Q2
 
 .data
-prompt: .asciiz "Enter a positive integer: "
-even_msg: .asciiz "The number is Even"
-odd_msg: .asciiz "The number is Odd"
+    X: .asciiz "Enter your number positive: "
+    Y: .asciiz "This your enter number odd.\n"
+    Z: .asciiz "This your enter number even.\n"
 
 .text
+.include ""
+.globl main
+
 main:
-    # Prompt user
-    la $a0, prompt
-    jal print_string
-    
-    # Get integer
-    jal prompt_int
-    move $t0, $v0
-    
-    # Check even/odd (Remainder of division by 2)
+
+    la $a0, X            
+    jal prompt_int   
+    move $t0, $v0       
+
+  
     li $t1, 2
-    rem $t2, $t0, $t1
-    
-    beq $t2, $zero, is_even
-    
-    # If not zero, it's odd
-    la $a0, odd_msg
-    jal print_string
-    j end_q2
+    rem $t2, $t0, $t1    # $t2 = $t0 % 2
+
+   
+    beq $t2, $0, is_even
+
+is_odd:
+   
+    la $a0, Y
+    jal print_string    
+    j program_exit      
 
 is_even:
-    la $a0, even_msg
-    jal print_string
 
-end_q2:
-    jal exit
+    la $a0, Z
+    jal print_string    
+
+program_exit:
+    
+    jal exit             
+
 
 
 Q3.
