@@ -1102,4 +1102,31 @@ main:
 	li $v0, 10
 	syscall
 	
-	
+	positive nagative 
+
+.text
+main:
+    lw $t0, num
+
+    slt $t1, $zero, $t0   
+    beqz $t1, else
+
+    
+    la $a0, positiveNumber
+    li $v0, 4
+    syscall
+    j end_if
+
+else:
+    la $a0, negativeNumber  
+    li $v0, 4
+    syscall
+
+end_if:
+    li $v0, 10
+    syscall
+
+.data
+num: .word -5
+positiveNumber: .asciiz "Number is positive"
+negativeNumber: .asciiz "Number is Negative"
