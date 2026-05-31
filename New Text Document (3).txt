@@ -486,7 +486,7 @@ main:
     syscall
 
     # ---- Division ----
-    beq $t1, $zero, div_error # 0න් බෙදන්න බැරි නිසා Check කරනවා
+    beq $t1, $zero, div_error 
     li $v0, 4
     la $a0, msg_div
     syscall
@@ -512,19 +512,19 @@ newline: .asciiz "\n"
 .text
 .globl main
 main:
-    li $t0, 9            # Loop එක පටන් ගන්නේ 9න්
+    li $t0, 9           
 
 loop_q2:
-    blt $t0, 1, end_q2   # $t0 එක 1ට වඩා අඩු වුණොත් ලූපයෙන් අයින් වෙනවා
+    blt $t0, 1, end_q2   
     
-    # ඉලක්කම ප්‍රින්ට් කිරීම
+    
     move $a0, $t0
     li $v0, 1
     syscall
     
-    # නව පේළියක් (Newline) ප්‍රින්ට් කිරීම
+    # නව පේළියක් (Newline) 
     li $v0, 4
-    la $a0, newline
+    la $a0, newlin
     syscall
     
     # $t0 එක 1කින් අඩු කිරීම
@@ -573,12 +573,12 @@ main:
     # ලොජික් එක: මුලින්ම $t0 කුඩාමයි කියා හිතමු ($t3 = smallest)
     move $t3, $t0
 
-    # $t1 එක $t3 ට වඩා කුඩාද බලන්න
+ 
     blt $t1, $t3, update_t1
     j check_t2
 
 update_t1:
-    move $t3, $t1        # කුඩාම අංකය $t1 කරන්න
+    move $t3, $t1      
 
 check_t2:
     # $t2 එක $t3 ට වඩා කුඩාද බලන්න
@@ -586,8 +586,7 @@ check_t2:
     j print_smallest
 
 update_t2:
-    move $t3, $t2        # කුඩාම අංකය $t2 කරන්න
-
+    move $t3, $t2       
 print_smallest:
     li $v0, 4
     la $a0, res
@@ -615,10 +614,10 @@ main:
     syscall
     li $v0, 5
     syscall
-    move $a0, $v0        # $a0 ඇතුළට 'n' අගය දානවා (Argument එක විදිහට)
+    move $a0, $v0       
 
-    jal factorial        # Factorial function එක call කිරීම
-    move $t0, $v0        # පිළිතුර $t0 වෙත තබා ගැනීම
+    jal factorial     
+    move $t0, $v0      
 
     # පිළිතුර ප්‍රින්ට් කිරීම
     li $v0, 4
@@ -635,9 +634,9 @@ main:
 
 # ---- Recursive Factorial Function ----
 factorial:
-    subu $sp, $sp, 8     # Stack එකේ ඉඩ වෙන් කිරීම
-    sw $ra, 4($sp)       # Return Address එක සේව් කිරීම
-    sw $a0, 0($sp)       # වත්මන් 'n' අගය සේව් කිරීම
+    subu $sp, $sp, 8    
+    sw $ra, 4($sp)     
+    sw $a0, 0($sp)       
 
     # Base Case: n <= 0 නම් 1ක් රිටන් කරන්න
     blez $a0, base_case
@@ -647,16 +646,154 @@ factorial:
     jal factorial
     
     # කෝඩ් එක ආපසු හැරෙන විට (Unwinding stack)
-    lw $a0, 0($sp)       # පරණ 'n' අගය නැවත ලෝඩ් කිරීම
-    lw $ra, 4($sp)       # Return Address එක නැවත ලෝඩ් කිරීම
-    addi $sp, $sp, 8     # Stack එක යථා තත්ත්වයට පත් කිරීම
-
+    lw $a0, 0($sp)       
+    lw $ra, 4($sp)      
+    addi $sp, $sp, 8    
+    
     mul $v0, $a0, $v0    # n * fact(n-1)
     jr $ra
 
 base_case:
-    li $v0, 1            # 0! හෝ 1! වලට පිළිතුර 1යි
+    li $v0, 1           
     lw $ra, 4($sp)
     addi $sp, $sp, 8
+    jr $ra
+
+
+while loop 
+
+.data
+.text
+	addi $s0,$zero,0
+	
+	while:
+		bgt $s0,10,exit
+		add $s0,$s0,1
+		j while
+		
+	exit:
+	
+		li $v0,1
+		add $a0,$zero,$s0
+		syscall 
+		
+		li $v0,10
+		syscall
+
+
+3-cat
+
+.data
+array:      .word 55,27,13,5,44,32,17,36
+size:       .word 8
+msg1:       .asciiz "integers in the array: "
+msg2:       .asciiz "\nmaximum value: "
+msg3:       .asciiz "\nsummation: "
+space:      .asciiz " "
+
+.text
+.globl main
+
+main:
+    li $v0,4
+
+    la $a0,msg1
+
+    syscall
+
+    la $a0,array
+
+    lw $a1,size
+
+    jal printArray
+    li $v0,4
+
+    la $a0,msg2
+
+    syscall
+
+    la $a0,array
+
+    lw $a1,size
+
+    jal findMax
+    move $a0,$v0
+
+    li $v0,1
+
+    syscall
+    li $v0,4
+
+    la $a0,msg3
+
+    syscall
+    la $a0,array
+
+    lw $a1,size
+
+    jal findSum
+    move $a0,$v0
+
+    li $v0,1
+
+    syscall
+    li $v0,10
+    syscall
+printArray:
+    move $t3,$a0  
+    li $t0,0  
+printLoop:
+
+    beq $t0,$a1,endPrint
+    lw $t1,0($t3)
+    li $v0,1
+    move $a0,$t1
+    syscall
+    li $v0,4
+    la $a0,space
+    syscal
+    addi $t3,$t3,4 
+    addi $t0,$t0,1
+    j printLoop
+
+endPrint:
+    jr $ra
+
+findMax:
+
+    lw $t0,0($a0)
+    li $t1,1
+
+maxLoop:
+
+    beq $t1,$a1,endMax
+    addi $a0,$a0,4
+    lw $t2,0($a0)
+
+    ble $t2,$t0,skipMax
+    move $t0,$t2
+
+skipMax:
+    addi $t1,$t1,1
+    j maxLoop
+endMax:
+    move $v0,$t0
+    jr $ra
+
+findSum:
+    li $t0,0
+    li $t1,0 
+sumLoop:
+
+    beq $t1,$a1,endSum
+    lw $t2,0($a0)
+    add $t0,$t0,$t2
+
+    addi $a0,$a0,4
+    addz $t1,$t1,1
+    j sumLoop
+endSum:
+
+    move $v0,$t0
     jr $ra
 
