@@ -696,76 +696,97 @@ while loop
 3-cat
 
 .data
-    array:      .word 12, 13, 14, 56, 78, 34
-    size:       .word 6
-
-    msg_arr:    .asciiz "Array: "
-    msg_space:  .asciiz " "
-    msg_max:    .asciiz "\nMaximum: "
-    msg_avg:    .asciiz "\nAverage: "
+    arr:    .word 55, 27, 13, 5, 44, 32, 17, 36
+    size:   .word 8
+    msg1:   .asciiz "Array Elements: "
+    msg2:   .asciiz "\nMaximum Value: "
+    msg3:   .asciiz "\nSummation: "
+    space:  .asciiz " "
 
 .text
 .globl main
+
 main:
-    la $t0, array          
-    lw $t1, size           
-    
-    li $t2, 0              
-    lw $t3, 0($t0)         
-    li $t4, 0              
-    
-   
+    # 1. Print Array
     li $v0, 4
-    la $a0, msg_arr
+    la $a0, msg1
     syscall
+    jal PrintArray
 
-loop:
-    beq $t2, $t1, print_results 
-    
-    lw $t5, 0($t0)         
-
+    # 2. Find and Print Max
+    li $v0, 4
+    la $a0, msg2
+    syscall
+    jal FindMax
+    move $a0, $v0      # ප්‍රතිඵලය $v0 සිට $a0 ට මාරු කරන්න
     li $v0, 1
-    move $a0, $t5
     syscall
-    
+
+    # 3. Find and Print Sum
     li $v0, 4
-    la $a0, msg_space
+    la $a0, msg3
     syscall
-
-    add $t4, $t4, $t5      
-
-    blt $t3, $t5, skip_max 
-    move $t3, $t5          
-skip_max:
-
-   
-    addi $t0, $t0, 4       
-    addi $t2, $t2, 1      
-    j loop
-
-
-print_results:
-    li $v0, 4
-    la $a0, msg_max
-    syscall
-    
+    jal FindSum
+    move $a0, $v0      # ප්‍රතිඵලය $v0 සිට $a0 ට මාරු කරන්න
     li $v0, 1
-    move $a0, $t3          
     syscall
 
-    div $t4, $t1           
-    mflo $t6              
-    
-    li $v0, 4
-    la $a0, msg_avg
-    syscall
-    
-    li $v0, 1
-    move $a0, $t6         
-    syscall
-
+    # Exit
     li $v0, 10
     syscall
+
+# --- Subprograms ---
+
+PrintArray:
+    la $t0, arr
+    lw $t1, size
+loop1:
+    beq $t1, $zero, end1
+    lw $a0, 0($t0)
+    li $v0, 1
+    syscall
+    li $v0, 4
+    la $a0, space
+    syscall
+    addi $t0, $t0, 4
+    addi $t1, $t1, -1
+    j loop1
+end1:
+    jr $ra
+
+FindMax:
+    la $t0, arr
+    lw $t1, size
+    lw $t2, 0($t0)     # $t2 තාවකාලික max අගය ලෙස ගනී
+loop2:
+    beq $t1, $zero, end2
+    lw $t3, 0($t0)
+    bgt $t3, $t2, update
+    j next
+update:
+    move $t2, $t3
+next:
+    addi $t0, $t0, 4
+    addi $t1, $t1, -1
+    j loop2
+end2:
+    move $v0, $t2
+    jr $ra
+
+FindSum:
+    la $t0, arr
+    lw $t1, size
+    li $t2, 0          # $t2 එකතුව (sum) තබා ගැනීමට
+loop3:
+    beq $t1, $zero, end3
+    lw $t3, 0($t0)
+    add $t2, $t2, $t3
+    addi $t0, $t0, 4
+    addi $t1, $t1, -1
+    j loop3
+end3:
+    move $v0, $t2
+    jr $ra
 
 2 - cat
 
