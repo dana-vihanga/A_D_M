@@ -668,7 +668,7 @@ factorial:
 base_case:
     li $v0, 1           
     lw $ra, 4($sp)
-    addi $sp, $sp, 8
+    addi $sp, $sp,8
     jr $ra
 
 
