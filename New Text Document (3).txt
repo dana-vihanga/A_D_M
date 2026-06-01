@@ -81,7 +81,66 @@ is_even:
 program_exit:
     
     jal exit             
+(.data
+    X: .asciiz "Enter your number positive: "
+    Y: .asciiz "This your enter number odd.\n"
+    Z: .asciiz "This your enter number even.\n"
 
+.text
+.globl main
+
+main:
+    # 1. Input number
+    la $a0, X
+    jal prompt_int       
+    move $t0, $v0       
+
+    # 2. Check Odd/Even
+    andi $t1, $t0, 1    
+    beq $t1, $zero, is_even  
+
+is_odd:
+    la $a0, Y
+    jal print_string
+    j end_program       
+
+is_even:
+    la $a0, Z
+    jal print_string
+
+end_program:
+    jal exit
+
+# ---------------------------
+# මේ ශ්‍රිත ටික main එකෙන් එළියට ගන්න
+# ---------------------------
+
+exit:
+    li $v0, 10           
+    syscall
+
+print_string:
+    li $v0, 4           
+    syscall
+    jr $ra              
+
+prompt_int:
+    li $v0, 4           
+    syscall
+    li $v0, 5           
+    syscall             
+    jr $ra              
+
+print_int:
+    li $v0, 1           
+    syscall
+    jr $ra              
+
+print_tab:
+    li $v0, 11          
+    li $a0, 9           
+    syscall
+    jr $ra)
 
 
 Q3.
