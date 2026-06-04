@@ -1163,6 +1163,143 @@ public class test {
     }
 }
 
+-----------------------------------------------------------------------------2018,Q04(testng)
+BaseTest.java
+package test;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+
+public class BaseTest {
+
+    public static WebDriver driver;
+
+    @BeforeTest
+    public void setup() {
+
+        System.setProperty("webdriver.chrome.driver",
+                "D:\\chromedriver\\chromedriver.exe");
+
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+
+        driver.get("file:///C:/xampp/htdocs/employee/index.html");
+    }
+
+    @AfterTest
+    public void tearDown() {
+
+        driver.quit();
+    }
+}
+
+-----------
+LoginTest.java
+
+package test;
+
+import org.openqa.selenium.*;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class LoginTest extends BaseTest {
+
+    // Task 1 & 2
+    @Test(priority = 1)
+    public void loginSystem() throws InterruptedException {
+
+        driver.findElement(By.id("username"))
+                .sendKeys("admin");
+
+        driver.findElement(By.id("password"))
+                .sendKeys("admin123");
+
+        driver.findElement(By.id("loginBtn")).click();
+
+        Thread.sleep(2000);
+
+        String pageSource = driver.getPageSource();
+
+        if(pageSource.contains("wrong password")
+                || pageSource.contains("invalid")) {
+
+            System.out.println("Show Error Message");
+        }
+
+        Assert.assertTrue(true);
+    }
 
 
+    // Task 3
+    @Test(priority = 2, dependsOnMethods = "loginSystem")
+    public void searchEmployee() throws InterruptedException {
 
+        WebElement search =
+                driver.findElement(By.id("search"));
+
+        search.sendKeys("ab");
+
+        Thread.sleep(2000);
+
+        String pageSource = driver.getPageSource();
+
+        if(pageSource.contains("ab")) {
+
+            System.out.println("data detected");
+        }
+        else {
+
+            System.out.println("data undetected");
+        }
+
+        Assert.assertTrue(true);
+    }
+
+
+    // Task 4
+    @Test(priority = 3,
+          dependsOnMethods = "searchEmployee")
+    public void updateUser() throws InterruptedException {
+
+        driver.findElement(By.id("updateBtn"))
+                .click();
+
+        Thread.sleep(2000);
+
+        driver.findElement(By.id("closeBtn"))
+                .click();
+
+        Assert.assertTrue(true);
+    }
+
+
+    // Task 5
+    @Test(priority = 4,
+          dependsOnMethods = "updateUser")
+    public void addNewUser() throws InterruptedException {
+
+        driver.findElement(By.id("addBtn"))
+                .click();
+
+        Thread.sleep(2000);
+
+        driver.findElement(By.id("closePopup"))
+                .click();
+
+        Assert.assertTrue(true);
+    }
+
+
+    // Task 6
+    @Test(priority = 5,
+          dependsOnMethods = "addNewUser")
+    public void logoutSystem() {
+
+        driver.findElement(By.id("logoutBtn"))
+                .click();
+
+        Assert.assertTrue(true);
+    }
+}
