@@ -219,3 +219,32 @@ Router# write
 
 Router# show ip bgp summary
 ----------------------------------------------------------------------
+snmp
+
+Router> enable
+Router# configure terminal
+
+! 1. SNMP Read-Only (දත්ත බැලීමට විතරක්) Community String එකක් හැදීම
+! (මෙහි 'public' යනු Password එකයි. RO කියන්නේ Read-Only)
+Router(config)# snmp-server community public RO
+
+! 2. SNMP Read-Write (දත්ත වෙනස් කිරීමටත් පුළුවන්) Community String එකක් හැදීම
+! (මෙහි 'private' යනු Password එකයි. RW කියන්නේ Read-Write)
+Router(config)# snmp-server community private RW
+
+! 3. රවුටරේ තියෙන තැන (Location) සහ මේක අයිති කාටද (Contact) කියලා ලියාපදිංචි කිරීම
+Router(config)# snmp-server location Colombo_Office
+Router(config)# snmp-server contact Viraj_Jayasinghe
+
+! 4. නෙට්වර්ක් එකේ ලෙඩක් ආවොත් (උදා: පෝර්ට් එකක් down වුණොත්) 
+! ඒක ක්ෂණිකව මැනේජර් සර්වර් එකට දැනුම් දීමට Traps ඔන් කිරීම
+Router(config)# snmp-server enable traps
+
+! 5. අදාළ මැසේජ් ට්‍රැප්ස් (Traps) යවන්න ඕන මැනේජර් සර්වර් එකේ IP එක සහ කී එක දීම
+! (මෙහි 192.168.10.2 කියන්නේ ඔයාගේ නෙට්වර්ක් එකේ තියෙන Server එකේ IP එකයි)
+Router(config)# snmp-server host 192.168.10.2 version 2c public
+
+Router(config)# exit
+Router# write
+
+ show snmp
