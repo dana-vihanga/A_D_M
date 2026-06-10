@@ -87,3 +87,32 @@ network 10.10.10.0 mask 255.0.0.0
 
 show ip bgp neighbors
 show ip bgp summary
+
+
+
+
+SNMP
+click  pc --> MIB --> desktop tab
+Choose a advance option
+set the followings
+Address 192.168.0100
+port 161
+Read community dcsstaff
+write community dpsstaff
+SNMP Version V3
+Now in the MIB Browser  -->MIB Tree-->.........--> sysName--> choose Operations-->go
+
+for router
+en
+conf t
+hostname snmp-server
+int gig0/0
+ip address 192.168.0.100 255.0.0.0
+no shut
+
+exit
+snmp-server community dcsstaff ro
+snmp-server community dpsstaff rw
+
+ctrl+ z
+write
