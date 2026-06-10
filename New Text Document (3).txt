@@ -116,3 +116,71 @@ snmp-server community dpsstaff rw
 
 ctrl+ z
 write
+
+
+
+
+-----------------------------------------------------------------------------------
+
+Router> enable
+Router# configure terminal
+
+! 1. රවුටරයේ Gig0/0 interface එකට IP දීම (Gateway එක)
+Router(config)# interface g0/0
+Router(config-if)# ip address 192.168.10.1 255.255.255.0
+Router(config-if)# no shutdown
+Router(config-if)# exit
+
+! 2. රවුටරය ඇතුළේ IP බෙදන්න DHCP Pool එක හැදීම
+Router(config)# ip dhcp excluded-address 192.168.10.1
+Router(config)# ip dhcp pool VOICE_POOL
+Router(config-dhcp)# network 192.168.10.0 255.255.255.0
+Router(config-dhcp)# default-router 192.168.10.1
+Router(config-dhcp)# option 150 ip 192.168.10.1
+Router(config-dhcp)# exit
+
+! 3. Telephony Service (CME) එක ඔන් කිරීම
+Router(config)# telephony-service
+Router(config-telephony)# max-ephones 5
+Router(config-telephony)# max-dn 5
+Router(config-telephony)# ip source-address 192.168.10.1 port 2000
+Router(config-telephony)# create cnf-files
+Router(config-telephony)# auto assign 1 to 5
+Router(config-telephony)# exit
+
+! 4. ෆෝන් 2 සඳහා ඩයල් නම්බර්ස් (Extensions) වෙන් කිරීම
+Router(config)# ephone-dn 1
+Router(config-ephone-dn)# number 1001
+Router(config-ephone-dn)# exit
+
+Router(config)# ephone-dn 2
+Router(config-ephone-dn)# number 1002
+Router(config-ephone-dn)# exit
+
+! කරපු ටික රවුටරේ ඇතුළේ සේව් කිරීම
+Router(config)# exit
+Router# write
+
+Switch10> enable
+Switch10# configure terminal
+
+! 1. ෆෝන් ගහලා තියෙන Fa0/1 සහ Fa0/2 පෝර්ට් දෙක Voice VLAN 10 කිරීම
+Switch11(config)# interface range fa0/1 - 2
+Switch11(config-if-range)# switchport mode access
+Switch11(config-if-range)# switchport access vlan 10
+Switch11(config-if-range)# switchport voice vlan 10
+Switch11(config-if-range)# exit
+
+! 2. රවුටරයට සම්බන්ධ වෙන Fa0/3 පෝර්ට් එක Trunk කිරීම
+Switch11(config)# interface fa0/3
+Switch11(config-if)# switchport mode trunk
+Switch11(config-if)# exit
+
+! කරපු ටික ස්විච් එකේ සේව් කිරීම
+Switch11# write
+
+-------------------------------------------------------------------
+
+
+
+
