@@ -217,4 +217,5 @@ Router(config-router)# exit
 Router(config)# exit
 Router# write
 
+Router# show ip bgp summary
 ----------------------------------------------------------------------
