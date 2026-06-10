@@ -180,7 +180,41 @@ Switch11(config-if)# exit
 Switch11# write
 
 -------------------------------------------------------------------
+bgp 
+r1
+Router> enable
+Router# configure terminal
+
+! 1. BGP ප්‍රොටොකෝල් එක AS 100 නම්බර් එකෙන් ඔන් කිරීම
+Router(config)# router bgp 100
+
+! 2. තමන්ගේ යටතේ තියෙන LAN නෙට්වර්ක් එක BGP එකට ඇතුළත් කිරීම
+Router(config-router)# network 192.168.10.0 mask 255.255.255.0
+
+! 3. දකුණු පැත්තේ ඉන්න Neighbor රවුටරේ (Router12) IP එක සහ ඒකේ AS එක (200) ලින්ක් කිරීම
+Router(config-router)# neighbor 192.168.1.2 remote-as 200
+
+Router(config-router)# exit
+Router(config)# exit
+Router# write
+
+r2
 
 
+Router> enable
+Router# configure terminal
 
+! 1. BGP ප්‍රොටොකෝල් එක AS 200 නම්බර් එකෙන් ඔන් කිරීම
+Router(config)# router bgp 200
 
+! 2. තමන්ගේ යටතේ තියෙන LAN නෙට්වර්ක් එක BGP එකට ඇතුළත් කිරීම
+Router(config-router)# network 192.168.11.0 mask 255.255.255.0
+
+! 3. වම් පැත්තේ ඉන්න Neighbor රවුටරේ (Router11) IP එක සහ ඒකේ AS එක (100) ලින්ක් කිරීම
+Router(config-router)# neighbor 192.168.1.1 remote-as 100
+
+Router(config-router)# exit
+Router(config)# exit
+Router# write
+
+----------------------------------------------------------------------
